@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#define MAX 500
+#define MAX 501
 
 int n,m;
 int grid[MAX][MAX];
