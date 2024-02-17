@@ -9,7 +9,7 @@
 ### 제출 일자
 
 2024-02-15 23:31
-
+ 
 
 
 > 출처: SW Expert Academy, https://swexpertacademy.com/main/code/problem/problemList.do
