@@ -1,58 +1,90 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
 import java.util.StringTokenizer;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class Solution {
-	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-	static StringBuilder sb = new StringBuilder();
-	static StringTokenizer st;
-	// 내림차순: 최댓값이 가장 먼저 pop됨
-//	static PriorityQueue<Integer> heap = new PriorityQueue<>(new Comparator<Integer>() {
-//		@Override
-//		public int compare(Integer a, Integer b) {
-//			return b - a;
-//		}
-//	});
-	static PriorityQueue<Integer> heap;
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
-		int T = Integer.parseInt(br.readLine());
-		for (int t = 1; t <= T; t++) {
-			heap = new PriorityQueue<>(Collections.reverseOrder());
-			sb.append("#" + t + " ");
-			int N = Integer.parseInt(br.readLine());
+    static int heapSize;
+    public static void main(String[] args) throws NumberFormatException, IOException {
 
-			for (int n = 0; n < N; n++) {
-				st = new StringTokenizer(br.readLine());
-				int op = Integer.parseInt(st.nextToken());
-				if (op == 1) { // 최대 힙에 추가하는 연산
-					heapPush(Integer.parseInt(st.nextToken()));
-//					System.out.println(heap.toString());
-				} else { // 최대 힙 루트 노드 키 값 출력 후 해당 노드 삭제
-					sb.append(heapPop() + " ");
-				}
-			}
-			sb.append("\n");
-		}
-		System.out.println(sb);
-	}
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int T = Integer.parseInt(br.readLine()); // 테스트 케이스의 수
 
-	// 삽입
-	static void heapPush(int data) {
-		heap.add(data);
-	}
+        for (int TC = 1; TC <= T; TC++) {
+            int N = Integer.parseInt(br.readLine()); // 연산의 수
+            int[] heap = new int[100001]; // 1-based 이므로 최대 연산의 수 + 1
+            heapSize = 0;
 
-	// 삭제
-	static int heapPop() {
-		// 힙에 원소가 없다면
-		if (heap.isEmpty()) return -1;
+            System.out.print("#" + TC + " ");
 
-		// 루트에 있는 원소 제거
-		int popItem = heap.poll();
-		return popItem;
-	}
+            for (int i = 0; i < N; i++) {
+
+                StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+                int cmd = Integer.parseInt(st.nextToken());
+
+                if (cmd == 1) { // 연산1
+                    int num = Integer.parseInt(st.nextToken());
+                    heapPush(heap, num);
+                } else { // 연산2
+                    System.out.print(heapPop(heap) + " ");
+                }
+            }
+            System.out.println();
+
+        }
+
+    }
+
+    static void swap(int[] heap, int a, int b) {
+
+        int tmp = heap[a];
+        heap[a] = heap[b];
+        heap[b] = tmp;
+
+    }
+
+    static void heapPush(int[] heap, int num) {
+
+        heap[++heapSize] = num;
+        int ch = heapSize;
+        int p = ch / 2;
+
+        while (p > 0 && heap[p] < heap[ch]) {
+            swap(heap, p, ch);
+            ch = p;
+            p = ch / 2;
+        }
+    }
+
+    static int heapPop(int[] heap) {
+
+        if (heapSize == 0) {
+            return -1;
+        }
+
+        int popItem = heap[1];
+
+        heap[1] = heap[heapSize--];
+
+        int p = 1;
+        int ch = 2 * p;
+
+        while (ch <= heapSize) {
+            if (ch + 1 <= heapSize && heap[ch] < heap[ch + 1]) {
+                ch++;
+            }
+
+            if (heap[p] < heap[ch]) {
+                swap(heap, p, ch);
+            }
+
+            p = ch;
+            ch = 2 * p;
+        }
+
+        return popItem;
+
+    }
+
 }
