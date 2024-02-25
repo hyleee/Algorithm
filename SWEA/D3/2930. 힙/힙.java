@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
+import java.util.Comparator;
 
 public class Solution {
 
@@ -69,7 +71,7 @@ public class Solution {
 
         int p = 1;
         int ch = 2 * p;
-
+        
         while (ch <= heapSize) {
             if (ch + 1 <= heapSize && heap[ch] < heap[ch + 1]) {
                 ch++;
@@ -77,10 +79,11 @@ public class Solution {
 
             if (heap[p] < heap[ch]) {
                 swap(heap, p, ch);
+                p = ch;
+                ch = 2 * p;
+            } else {
+                break;
             }
-
-            p = ch;
-            ch = 2 * p;
         }
 
         return popItem;
