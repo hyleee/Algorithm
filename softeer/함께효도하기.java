@@ -47,18 +47,18 @@ public class 함께하는효도 {
             map[x - 1][y - 1] = 0;
         }
         
-        backTracking(nodes.get(0), 1, 0, 0);
+        dfs(nodes.get(0), 1, 0, 0);
 
         System.out.println(res);
 
         br.close();
     }
 
-    private static void backTracking(Node curNode, int idx, int cnt, int maxFruit) {
+    private static void dfs(Node curNode, int idx, int cnt, int maxFruit) {
 
         if (cnt == 3) {
             if (idx < m) {
-                backTracking(nodes.get(idx), idx + 1, 0, maxFruit + curNode.fruit);
+                dfs(nodes.get(idx), idx + 1, 0, maxFruit + curNode.fruit);
                 return;
             }
 
@@ -75,7 +75,7 @@ public class 함께하는효도 {
             Node nextNode = new Node(nx, ny, curNode.fruit + map[nx][ny]);
             int tmp = map[nx][ny];
             map[nx][ny] = 0;
-            backTracking(nextNode, idx, cnt + 1, maxFruit);
+            dfs(nextNode, idx, cnt + 1, maxFruit);
             map[nx][ny] = tmp;
         }
     }
