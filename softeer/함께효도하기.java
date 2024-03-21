@@ -16,7 +16,7 @@ public class 함께하는효도 {
 
     static int n, m, res;
     static List<Node> nodes;
-    static int[][] harvest;
+    static int[][] map;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
     public static void main(String[] args) throws Exception {
@@ -28,12 +28,12 @@ public class 함께하는효도 {
         m = Integer.parseInt(st.nextToken());
         res = Integer.MIN_VALUE;
         nodes = new ArrayList<>();
-        harvest = new int[n][n];
+        map = new int[n][n];
 
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < n; j++) {
-                harvest[i][j] = Integer.parseInt(st.nextToken());
+                map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
@@ -42,9 +42,9 @@ public class 함께하는효도 {
             int x = Integer.parseInt(st.nextToken());
             int y = Integer.parseInt(st.nextToken());
             
-            Node startNode = new Node(x - 1, y - 1, harvest[x - 1][y - 1]);
+            Node startNode = new Node(x - 1, y - 1, map[x - 1][y - 1]);
             nodes.add(startNode);
-            harvest[x - 1][y - 1] = 0;
+            map[x - 1][y - 1] = 0;
         }
         
         backTracking(nodes.get(0), 1, 0, 0);
@@ -72,11 +72,11 @@ public class 함께하는효도 {
 
             if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
 
-            Node nextNode = new Node(nx, ny, curNode.fruit + harvest[nx][ny]);
-            int tmp = harvest[nx][ny];
-            harvest[nx][ny] = 0;
+            Node nextNode = new Node(nx, ny, curNode.fruit + map[nx][ny]);
+            int tmp = map[nx][ny];
+            map[nx][ny] = 0;
             backTracking(nextNode, idx, cnt + 1, maxFruit);
-            harvest[nx][ny] = tmp;
+            map[nx][ny] = tmp;
         }
     }
 }
