@@ -50,8 +50,6 @@ public class 함께하는효도 {
         dfs(nodes.get(0), 1, 0, 0);
 
         System.out.println(res);
-
-        br.close();
     }
 
     private static void dfs(Node curNode, int idx, int cnt, int maxFruit) {
