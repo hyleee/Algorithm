@@ -62,8 +62,8 @@ public class Solution {
             maxDessert = Math.max(maxDessert, cnt);
             return;
         }
-        // 이미 dir 0~3 모두 고려했는데, 한 방향 당 1회 이상 직진하지 못했다면 출발점을 못 지날 수도 있잖아
-        if (dir == 4) return;
+//         이미 dir 0~3 모두 고려했는데, 한 방향 당 1회 이상 직진하지 못했다면 출발점을 못 지날 수도 있잖아 -> 그럴순 없다...
+//        if (dir == 4) return;
 
         // 1) 해당 방향으로 더 진행하는 경우, 미리 방문 처리
         int nr = r + dr[dir];
