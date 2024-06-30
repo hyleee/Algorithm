@@ -1,0 +1,187 @@
+import java.util.*;
+
+class UserSolution {
+    public final int MAX_N = 20; // 맵의 최대 크기
+    public final int MAX_HASH = 9999; // 해시의 최대값
+
+    public int n;
+    public int[][] initMap = new int[MAX_N + 2][MAX_N + 2];
+    public int[][] modifiedMap = new int[MAX_N + 2][MAX_N + 2];
+    
+    // 구조물을 설치할 후보 위치를 저장
+    public class Candidate {
+        int r;
+        int c;
+        boolean isHorizontal;
+        boolean isReverse;
+
+        public Candidate(int r, int c, boolean isHorizontal, boolean isReverse) {
+            this.r = r;
+            this.c = c;
+            this.isHorizontal = isHorizontal;
+            this.isReverse = isReverse;
+        }
+    }
+    
+    // 후보 위치를 저장하는 리스트 배열
+    public List<Candidate>[] candidate = new List[MAX_HASH + 1];
+    
+    // 각 테스트 케이스의 처음에 호출
+    public void init(int N, int[][] mMap) {
+        n = N; // 섬의 한 변의 길이 (5 <= N <= 20)
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                modifiedMap[i + 1][j + 1] = initMap[i + 1][j + 1] = mMap[i][j];
+        for (int i = 0; i <= MAX_HASH; i++)
+            candidate[i] = new ArrayList<>();
+
+        for (int length = 2; length <= 5; length++) {  // 놓고자 하는 구조물의 길이
+
+            // (1) 수평 방향으로 구조물을 놓아보는 작업
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j + length - 1 <= n; j++) {
+                    // (i, j)를 시작으로 구조물을 놓았음
+
+                    // 왼쪽에서 오른쪽으로 구조물을 놓았을 때
+                    int hash = 0;
+                    // 구조물의 각 부분을 순회. 구조물의 길이보다 하나 작은 인덱스까지만 순회하도록.
+                    // k와 k+1 두 높이의 차이를 계산하기 위해서
+                    for (int k = 0; k + 1 < length; k++)
+                    	// 현재까지의 hash 값에 10을 곱하고, 두 높이의 차이에 5를 더한 값을 더하여 새로운 hash 값을 계산
+                        // 5를 더하는 이유는, 높이 차이가 음수일 수 있기 때문에, 차이 값의 범위를 양수로 조정하기 위해서
+                    	// 예를 들어, 높이 차이가 -4인 경우, 5를 더하면 1
+                    	// 높이 차이가 순서대로 1, 2, 3이면, 해시 값은 123
+                    	hash = hash * 10 + (initMap[i][j + k + 1] - initMap[i][j + k] + 5);
+                    candidate[hash].add(new Candidate(i, j, true, false));
+
+                    // 오른쪽에서 왼쪽으로 (180도 회전해서) 구조물을 놓았을 때
+                    int reverseHash = 0;
+                    // 구조물의 각 부분을 순회
+                    for (int k = length - 1; k - 1 >= 0; k--)
+                        reverseHash = reverseHash * 10 + (initMap[i][j + k - 1] - initMap[i][j + k] + 5);
+                    if (reverseHash != hash)
+                    	// // 구조물을 뒤집어서 놓은 경우와 원래 방향으로 놓은 경우가 동일한 해시 값을 갖지 않는 경우에만 새 객체 생성
+                    	// 구조물을 (i, j) 위치에서 수평 방향(true)으로 놓았을 때, 원래 방향(false)으로 놓인다는 것
+                        candidate[reverseHash].add(new Candidate(i, j, true, true));
+                }
+            }
+
+            // (2) 수직 방향으로 구조물을 놓아보는 작업
+            for (int i = 1; i + length - 1 <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    int hash = 0;
+                    for (int k = 0; k + 1 < length; k++)
+                        hash = hash * 10 + (initMap[i + k + 1][j] - initMap[i + k][j] + 5);
+                    candidate[hash].add(new Candidate(i, j, false, false));
+
+                    int reverseHash = 0;
+                    for (int k = length - 1; k - 1 >= 0; k--)
+                        reverseHash = reverseHash * 10 + (initMap[i + k - 1][j] - initMap[i + k][j] + 5);
+                    if (reverseHash != hash)
+                    	// 구조물을 뒤집어서 놓은 경우와 원래 방향으로 놓은 경우가 동일한 해시 값을 갖지 않는 경우에만 새 객체 생성
+                    	//  구조물을 (i, j) 위치에서 수직 방향(false)으로 놓았을 때, 원래 방향(false)으로 놓인다
+                        candidate[reverseHash].add(new Candidate(i, j, false, true));
+                }
+            }
+        }
+    }
+    
+    // 구조물 mStructure를 1개 설치할 수 있는 경우의 수 반환
+    public int numberOfCandidate(int M, int[] mStructure) {
+    	// M: 구조물의 크기 (1 <= M <= 5)
+    	// mStructure : 구조물의 각 부분의 높이 ( 1<= mStructure[] <= 5)
+        if (M == 1)
+            return n * n;
+        
+        // 구조물의 각 부분의 높이 차이를 계산하여 고유한 해시 값을 생성
+        int hash = 0;
+        for (int i = 0; i + 1 < M; i++)
+            hash = hash * 10 + (mStructure[i] - mStructure[i + 1] + 5);
+        // 해당 해시 값에 대응하는 후보 위치의 리스트 크기를 반환
+        // = 주어진 구조물을 설치할 수 있는 경우의 수
+        return candidate[hash].size();
+    }
+
+    public boolean[][] check = new boolean[MAX_N + 2][MAX_N + 2];
+    public int[] dx = {1, 0, -1, 0};
+    public int[] dy = {0, 1, 0, -1};
+    
+    // 주어진 mMap과 mSeaLevel에서 잠기지 않는 영역의 크기를 BFS를 통해 계산 
+    public int unsubmergedArea(int[][] mMap, int mSeaLevel) {
+        Queue<int[]> q = new LinkedList<>();
+        for (int i = 0; i <= n + 1; i++) {
+            for (int j = 0; j <= n + 1; j++) {
+                if (i == 0 || i == n + 1 || j == 0 || j == n + 1) {
+                    q.add(new int[]{i, j});
+                    check[i][j] = true;
+                } else
+                    check[i][j] = false;
+            }
+        }
+        while (!q.isEmpty()) {
+            int[] front = q.poll();
+            for (int i = 0; i < 4; i++) {
+                int[] rear = {front[0] + dx[i], front[1] + dy[i]};
+                if (rear[0] >= 1 && rear[0] <= n && rear[1] >= 1 && rear[1] <= n) {
+                    if (!check[rear[0]][rear[1]] && mMap[rear[0]][rear[1]] < mSeaLevel) {
+                        q.add(rear);
+                        check[rear[0]][rear[1]] = true;
+                    }
+                }
+            }
+        }
+        
+        // 잠기지 않은 영역 count
+        int ret = 0;
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= n; j++)
+                if (!check[i][j])
+                    ret++;
+        return ret;
+    }
+    
+    // 해수면이 mSeaLevel 만큼 상승해도 바다에 잠기지 않고 남아있는 지역의 개수가 최대이도록 
+    // 구조물 mStructure 1개를 설치했을 때, 그 개수를 반환
+    // 실제로 설치하는 것이 아니다. 
+    public int maxArea(int M, int[] mStructure, int mSeaLevel) {
+        int ret = -1; // 구조물을 설치할 방법이 없으면 -1 반환
+        if (M == 1) { // M : 구조물의 크기 (1<=M<=5)
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    modifiedMap[i][j] = initMap[i][j] + mStructure[0]; // 현재 위치에 구조물을 설치하여 높이를 증가
+                    ret = Math.max(ret, unsubmergedArea(modifiedMap, mSeaLevel)); // 구조물을 설치한 후 잠기지 않는 영역의 크기를 계산하여 최대값을 갱신
+                    modifiedMap[i][j] = initMap[i][j]; //설치한 구조물을 제거하여 원래 상태로 복귀
+                }
+            }
+            return ret;
+        }
+
+        int hash = 0;
+        for (int i = 0; i + 1 < M; i++)
+            hash = hash * 10 + (mStructure[i] - mStructure[i + 1] + 5);
+
+        for (Candidate wall : candidate[hash]) {
+            if (wall.isHorizontal) { // 구조물이 수평 방향으로 놓일 경우를 처리
+            	// wall.isReverse가 참이면 끝부분의 높이를 기준으로 하고, 거짓이면 시작 부분의 높이를 기준으로
+                int height = mStructure[0] + (wall.isReverse ? initMap[wall.r][wall.c + M - 1] : initMap[wall.r][wall.c]);
+               
+                // 1) 현재 위치에 구조물 설치하여 높이 증가
+                for (int i = 0; i < M; i++) // 구조물의 각 부분을 순회
+                    modifiedMap[wall.r][wall.c + i] = height; // 수평 방향으로 구조물을 설치하여 높이를 증가
+                // 2) 최대값 갱신
+                ret = Math.max(ret, unsubmergedArea(modifiedMap, mSeaLevel));
+                // 3) 설치한 구조물을 제거하여 원래 상태로
+                for (int i = 0; i < M; i++)
+                    modifiedMap[wall.r][wall.c + i] = initMap[wall.r][wall.c + i];
+            } else { // 구조물이 수직 방향으로 놓일 경우를 처리
+                int height = mStructure[0] + (wall.isReverse ? initMap[wall.r + M - 1][wall.c] : initMap[wall.r][wall.c]);
+                for (int i = 0; i < M; i++)
+                    modifiedMap[wall.r + i][wall.c] = height;
+                ret = Math.max(ret, unsubmergedArea(modifiedMap, mSeaLevel));
+                for (int i = 0; i < M; i++)
+                    modifiedMap[wall.r + i][wall.c] = initMap[wall.r + i][wall.c];
+            }
+        }
+        return ret;
+    }
+}
