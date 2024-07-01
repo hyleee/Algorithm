@@ -3,25 +3,27 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-class Node {
+class Node implements Comparable<Node> {
 	int r;
 	int c;
 	int virus;
 	int time;
 
 	public Node(int r, int c, int virus, int time) {
-		super();
 		this.r = r;
 		this.c = c;
 		this.virus = virus;
 		this.time = time;
 	}
 
+	@Override
+	public int compareTo(Node other) {
+		return this.virus - other.virus;
+	}
 }
 
 public class Main {
@@ -51,12 +53,8 @@ public class Main {
 			}
 		}
 
-		Collections.sort(list, new Comparator<Node>() {
-			@Override
-			public int compare(Node o1, Node o2) {
-				return o1.virus - o2.virus;
-			}
-		});
+		// 바이러스를 오름차순으로 정렬
+		Collections.sort(list);
 
 		for (Node node : list) {
 			q.add(node);
@@ -66,34 +64,32 @@ public class Main {
 		s = Integer.parseInt(st.nextToken());
 		x = Integer.parseInt(st.nextToken());
 		y = Integer.parseInt(st.nextToken());
-		
-		
+
 		bfs();
 		System.out.println(map[x-1][y-1]);
 	}
-	
+
 	static void bfs() {
-		while(!q.isEmpty()) {
+		while (!q.isEmpty()) {
 			Node cur = q.poll();
 			int r = cur.r;
 			int c = cur.c;
-			
-			if(cur.time==s) {
+
+			if (cur.time == s) {
 				return;
 			}
-			
-			for(int d=0; d<4; d++) {
+
+			for (int d = 0; d < 4; d++) {
 				int nr = r + dr[d];
-				int nc= c + dc[d];
-				
-				if(nr>=0 && nr<N && nc>=0 && nc<N) {
-					if(map[nr][nc]==0) {
+				int nc = c + dc[d];
+
+				if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+					if (map[nr][nc] == 0) {
 						map[nr][nc] = cur.virus;
-						q.add(new Node(nr, nc, cur.virus, cur.time+1));
+						q.add(new Node(nr, nc, cur.virus, cur.time + 1));
 					}
 				}
 			}
 		}
 	}
-
 }
