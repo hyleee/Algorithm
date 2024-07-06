@@ -9,7 +9,7 @@ public class Main {
         int N = Integer.parseInt(br.readLine());
         StringTokenizer st = new StringTokenizer(br.readLine());
         int[] arr = new int [N+1];
-        int[] dp = new int [N+1];
+        int[] dp = new int [N+1]; // i번째 원소를 마지막으로 포함하는 증가 부분 수열의 최대 합
 
         for(int n=1; n<=N; n++){
             arr[n] = Integer.parseInt(st.nextToken());
@@ -22,6 +22,7 @@ public class Main {
                 if(arr[i] > arr[j]){ // j->i로 올 때 증가한다면
                     // dp[i] 갱신
                     // 여태까지 쌓인 증가수열의 총 합
+                    // dp[i] 와 arr[i]와는 엄연히 다르다. 주의!!!
                     dp[i] = Math.max(dp[i], dp[j] + arr[i]);
 //                    dp[i] = dp[j] + arr[i];
                 }
