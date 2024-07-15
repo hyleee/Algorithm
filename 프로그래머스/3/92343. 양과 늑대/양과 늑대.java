@@ -1,57 +1,68 @@
 import java.util.*;
 
 class Solution {
-    int maxSheep = 0;
+    // 최대 양의 수를 저장할 변수
+    private static int maxSheepCount;
+    // 그래프를 저장할 배열
+    private static List<Integer>[] GRAPH;
 
     public int solution(int[] info, int[][] edges) {
-        // 노드 개수는 정해져 있고, 연결 개수는 정해져있지 않으므로 List<Integer>[] 사용
-        List<Integer>[] graph = new ArrayList[info.length];
-        for (int i = 0; i < graph.length; i++) {
-            graph[i] = new ArrayList<>();
+        // 최대 양의 수 초기화
+        maxSheepCount = 0;
+        // 그래프 초기화
+        GRAPH = new ArrayList[info.length];
+
+        // 각 노드의 연결 리스트 초기화
+        for (int i = 0; i < info.length; i++) {
+            GRAPH[i] = new ArrayList<>();
         }
+
+        // 간선 정보를 바탕으로 그래프 생성
         for (int[] edge : edges) {
-            graph[edge[0]].add(edge[1]);
-            graph[edge[1]].add(edge[0]);
+            GRAPH[edge[0]].add(edge[1]);
         }
 
-        // dfs 를 위한 초기화
-        boolean[] visited = new boolean[info.length];
-        visited[0] = true;
-        // 경로 기록 (길이를 지정할 수 없으므로 List<Integer>)
-        List<Integer> path = new ArrayList<>();
+        // 시작 노드 설정
+        List<Integer> path = new LinkedList<>();
         path.add(0);
-        
-        dfs(graph, info, visited, 0, 1, 0, path);
 
-        return maxSheep;
+        // DFS 탐색 시작
+        dfs(info, path, 0, 0, 0);
+
+        // 최대 양의 수 반환
+        return maxSheepCount;
     }
 
-    void dfs(List<Integer>[] graph, int[] info, boolean[] visited, int node, int sheep, int wolf, List<Integer> path) {
-        maxSheep = Math.max(maxSheep, sheep);
+    // DFS 메소드
+    private void dfs(int[] info, List<Integer> path, int currentNodeIdx, int sheepCount, int wolfCount) {
+        // 현재 노드가 양이면 양의 수 증가, 늑대면 늑대 수 증가
+        if (info[currentNodeIdx] == 0) {
+            sheepCount += 1;
+        } else {
+            wolfCount += 1;
+        }
 
-        // 현재 경로의 복사본을 만듦
-        List<Integer> currentPath = new ArrayList<>(path);
+        // 양의 수가 늑대 수보다 작거나 같으면 더 이상 탐색하지 않음
+        if (sheepCount <= wolfCount) {
+            return;
+        }
 
-        for (int current : currentPath) {
-            for (int next : graph[current]) {
-                if (!visited[next]) {
-                    // 방문처리
-                    visited[next] = true;
-                    path.add(next);
+        // 최대 양의 수 갱신
+        maxSheepCount = Math.max(maxSheepCount, sheepCount);
 
-                    if (info[next] == 0) { // 1) 양
-                        dfs(graph, info, visited, next, sheep + 1, wolf, path);
-                    } else { // 늑대
-                        if (sheep > wolf + 1) { // 양이 더 많을 때만 진행
-                            dfs(graph, info, visited, next, sheep, wolf + 1, path);
-                        }
-                    }
-                        
-                    // 원상복구 (백트랙킹)
-                    path.remove(path.size() - 1);
-                    visited[next] = false;
-                }
-            }
+        // 다음 탐색할 노드 리스트를 복사
+        List<Integer> copyPath = new ArrayList<>(path);
+
+        // 현재 노드의 자식 노드를 추가
+        if (!GRAPH[currentNodeIdx].isEmpty()) {
+            copyPath.addAll(GRAPH[currentNodeIdx]);
+        }
+        // 현재 노드를 다음 탐색할 리스트에서 제거
+        copyPath.remove(Integer.valueOf(currentNodeIdx));
+
+        // 다음 탐색할 노드들에 대해 DFS 수행
+        for (int nextIdx: copyPath) {
+            dfs(info, copyPath, nextIdx, sheepCount, wolfCount);
         }
     }
 }
